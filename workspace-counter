@@ -1,0 +1,27 @@
+# Insert under zsh example aliases
+# Session counter
+SESSION_FILE="/tmp/wsl_session_${USER}"
+
+if [ ! -f "$SESSION_FILE" ]; then
+  echo 1 > "$SESSION_FILE"
+else
+  CURRENT=$(cat "$SESSION_FILE")
+  echo $((CURRENT + 1)) > "$SESSION_FILE"
+fi
+
+_cleanup_session() {
+  if [[ -f "$SESSION_FILE" ]]; then
+    count=$(<"$SESSION_FILE")
+    new_count=$((count - 1))
+    if [[ $new_count -le 0 ]]; then
+      rm -f "$SESSION_FILE"
+    else
+      echo "$new_count" > "$SESSION_FILE"
+    fi
+  fi
+}
+
+trap _cleanup_session EXIT
+
+# Example usage (Persistent banner, figlet and lolcat needed if you want to c&p)
+alias clear="clear && figlet -f Slant Workspace $(cat $SESSION_FILE) | lolcat"
